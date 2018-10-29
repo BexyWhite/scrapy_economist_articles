@@ -169,7 +169,7 @@ def get_tpoics_articles(topics_url):
         get_article_content('https://www.economist.com{}'.format(article_link.get('href')), article_dir)
 
 
-def get_print_edition(edition_number):
+def get_print_edition(edition_number,save_path):
     '''
     获取期刊内容
     :param edition_number: 刊物版本日期 2018-02-03
@@ -188,9 +188,9 @@ def get_print_edition(edition_number):
 
     #创建文件目录
     #保存文章的路径
-    article_dir = "{}/{}".format(SAVE_DIR,edition_number)
+    article_dir = "{}/{}".format(save_path,edition_number)
     #保存图片的目录
-    image_dir = "{}/{}/images".format(SAVE_DIR,edition_number)
+    image_dir = "{}/{}/images".format(save_path,edition_number)
 
     mkdir(article_dir)
     mkdir(image_dir)

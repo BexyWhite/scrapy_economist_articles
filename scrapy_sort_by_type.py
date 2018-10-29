@@ -15,7 +15,7 @@ by fredliu
 '''
 
 # 保存文件的路径
-SAVE_DIR = '/Users/fred/PycharmProjects/economist/'
+SAVE_DIR = '/Users/fredliu/Documents/PycharmProjects/economist/'
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_3 like Mac OS X) AppleWebKit/603.3.8 (KHTML, like Gecko) Mobile/14G60 Sogousearch/Ios/5.9.8'
@@ -65,9 +65,7 @@ def get_article_content(article_url, save_dir):
 
     f.write("###### {}\n\r".format(flytitle_and_title__flytitle.get_text()))
 
-
     f.write("# {} \n\r".format(flytitle_and_title_title.get_text()))
-
 
     print("开始下载文章:{}".format(flytitle_and_title_title.get_text()))
 
@@ -76,7 +74,6 @@ def get_article_content(article_url, save_dir):
 
     if post_rubric != None:
         f.write("##### {} \n\r".format(post_rubric.get_text()))
-
 
     # 获取图片
     component_image_img = soup.find("img", class_="component-image__img blog-post__image-block")
@@ -100,7 +97,6 @@ def get_article_content(article_url, save_dir):
 
         f.write("![image](images/{}) \n\r".format(img_name))
 
-
     # blog-post__section-link 文章分类
     blog_post__section_link = soup.find("a", class_="blog-post__section-link")
 
@@ -110,7 +106,7 @@ def get_article_content(article_url, save_dir):
     if blog_post__section_link != None and blog_post__datetime != None:
 
         f.write("> {} | {} \n\r".format(blog_post__section_link.get_text().replace('print-edition icon ', ''),
-                                   blog_post__datetime.get_text()))
+                                        blog_post__datetime.get_text()))
 
 
     elif blog_post__section_link != None:
@@ -121,20 +117,19 @@ def get_article_content(article_url, save_dir):
     elif blog_post__datetime != None:
         f.write("> {} \n\r".format(blog_post__datetime.get_text()))
 
-
     # 获取文章内容
     blog_post_text = soup.find("div", class_="blog-post__text")
 
-    #清除订阅邮箱信息
+    # 清除订阅邮箱信息
     inbox_newsletter = blog_post_text.find('div', class_='newsletter-form newsletter-form--inline')
-    if inbox_newsletter!= None:
+    if inbox_newsletter != None:
         inbox_newsletter.decompose()
 
-    #新增获取文章内部图片
+    # 新增获取文章内部图片
     for children in blog_post_text.children:
 
-        #print(children.name)
-        #print(children.attrs)
+        # print(children.name)
+        # print(children.attrs)
         if children.name == 'p':
 
             if children.get('class') == ['xhead']:  # 20190209 添加内容中子标题
@@ -143,26 +138,26 @@ def get_article_content(article_url, save_dir):
             elif children.get('class') == None:
                 f.write("{} \n\r".format(children.get_text()))
 
-
         if children.name == 'figure':
-            #下载文章内部图片
+            # 下载文章内部图片
             image_inline = children.find('img')
-            image_value = image_inline.get('srcset').split(',')[2]
-            image_inline_url = "{}{}".format("https://www.economist.com",
-                                                    image_value.split(' ')[0].replace('\n', '').replace('\r', ''))
-            #print(image_inline_url)
+            if image_inline is not None:
+                image_value = image_inline.get('srcset').split(',')[2]
+                image_inline_url = "{}{}".format("https://www.economist.com",
+                                                 image_value.split(' ')[0].replace('\n', '').replace('\r', ''))
+                # print(image_inline_url)
 
-            url_path, img_name = os.path.split(image_inline_url)
+                url_path, img_name = os.path.split(image_inline_url)
 
-            image_save_path = '{}/images/{}'.format(save_dir, img_name)
-            image_names.append(img_name)
+                image_save_path = '{}/images/{}'.format(save_dir, img_name)
+                image_names.append(img_name)
 
-            with open(image_save_path, 'wb') as file:
-                file.write(requests.get(image_inline_url).content)
+                with open(image_save_path, 'wb') as file:
+                    file.write(requests.get(image_inline_url).content)
 
-            f.write("![image](images/{}) \n\r".format(img_name))
+                f.write("![image](images/{}) \n\r".format(img_name))
 
-    #读取文章
+    # 读取文章
     # for p in blog_post_text.find_all('p'):
     #
     #     if p.get('class') == ['xhead']:  # 20190209 添加内容中子标题
@@ -180,8 +175,6 @@ def get_article_content(article_url, save_dir):
     print("文章下载完成")
 
     return file_name, image_names
-
-
 
 
 def mkdir(path):
@@ -216,10 +209,11 @@ def mkdir(path):
         return False
 
 
-def get_print_edition(edition_number):
+def get_print_edition(edition_number, save_path):
     '''
     获取期刊内容
     :param edition_number: 刊物版本日期 2018-02-03
+    :param save_path: 保存路径
     :return:
     '''
 
@@ -235,13 +229,15 @@ def get_print_edition(edition_number):
 
     # 创建文件目录
     # 保存文章的路径
-    article_dir = "{}/{}".format(SAVE_DIR, edition_number)
+    article_dir = "{}/{}".format(save_path, edition_number)
     # 保存图片的目录
-    image_dir = "{}/{}/images".format(SAVE_DIR, edition_number)
+    image_dir = "{}/{}/images".format(save_path, edition_number)
 
     mkdir(article_dir)
     mkdir(image_dir)
 
+    # 获取封面标题 20181029
+    edition_main_title = soup.find("span", class_="print-edition__main-title-header__edition").get_text()
     # 获取封面图片 component-image__img print-edition__cover-widget__image
     print_edition__cover_widget__image = soup.find("img",
                                                    class_="component-image__img print-edition__cover-widget__image ")
@@ -250,15 +246,16 @@ def get_print_edition(edition_number):
     # print(cover_widget__images.split(' ')[0])
     cover_widget__image_url = "{}{}".format("https://www.economist.com",
                                             cover_widget__images.split(' ')[0].replace('\n', '').replace('\r', ''))
-    #print(cover_widget__image_url)
+    # print(cover_widget__image_url)
 
     with open('{}/{}'.format(article_dir, "cover.jpg"), 'wb') as file:
         file.write(requests.get(cover_widget__image_url).content)
 
     # return
 
-    #保存文章路径信息
+    # 保存文章路径信息
     json_articale = {}
+    json_articale['main_title'] = edition_main_title
     json_articale['cover_img'] = "cover.jpg"
     json_articale['edition'] = edition_number
 
@@ -274,8 +271,8 @@ def get_print_edition(edition_number):
         else:
             break
 
-        article_dir_list_title = "{}/{}/{}".format(SAVE_DIR, edition_number, list__title.get_text())
-        image_dir_list_title = "{}/{}/{}/images".format(SAVE_DIR, edition_number, list__title.get_text())
+        article_dir_list_title = "{}/{}/{}".format(save_path, edition_number, list__title.get_text())
+        image_dir_list_title = "{}/{}/{}/images".format(save_path, edition_number, list__title.get_text())
         mkdir(article_dir_list_title)
         mkdir(image_dir_list_title)
 
@@ -287,52 +284,28 @@ def get_print_edition(edition_number):
             print("正在下载文章{}".format(article_link.get('href')))
 
             file_name, image_names = get_article_content('https://www.economist.com{}'.format(article_link.get('href')),
-                                            article_dir_list_title)
-            #print(file_path)
-            #print(image_save_path)
+                                                         article_dir_list_title)
+            # print(file_path)
+            # print(image_save_path)
             # html = markdownTohtml(file_path)
             # print(html)
 
-            list__link = {'list__link': file_name,"articale_image":image_names}
+            list__link = {'list__link': file_name, "articale_image": image_names}
             json_list__item['list__item'].append(list__link)
 
-            #break
+            # break
         #
         json_articale['list'].append(json_list__item)
 
-    #保存json信息
+    # 保存json信息
     with open('{}/{}'.format(article_dir, "economist.json"), 'wb') as file:
         file.write(json.dumps(json_articale).encode())
 
+
 if __name__ == '__main__':
-    #get_print_edition('2018-02-17')
+    #
+    save_path = os.getcwd() + '/printedition/Markdown'  # 当前目录下
+    get_print_edition('2018-10-27', save_path)
 
-    artical_url = 'https://www.economist.com/news/china/21737447-countrys-politics-have-taken-another-turn-worse-chinas-leader-xi-jinping-will-be'
-    get_article_content(artical_url, '/Users/fred/PycharmProjects/economist')
-
-    #
-    # json_articale = {}
-    # json_articale['cover_img'] = "cover.img"
-    # json_articale['edition'] = '2018-02-17'
-    #
-    # json_articale['list'] = []
-    #
-    # json_list__item = {}
-    # json_list__item['list__title'] = 'The world this week'
-    # json_list__item['list__item'] = []
-    #
-    # list__link = {'list__link': 'Detente on the Korean peninsula is a relief.md'}
-    # # list__link['list__link'] = 'Detente on the Korean peninsula is a relief.md'
-    #
-    # json_list__item['list__item'].append(list__link)
-    #
-    # json_articale['list'].append(json_list__item)
-    #
-    # print(json_articale)
-    # article_dir = "{}/{}".format(SAVE_DIR, '2018-02-17')
-    # with open('{}/{}'.format(article_dir, "economist.json"), 'wb') as file:
-    #     file.write(json.dumps(json_articale).encode())
-
-        # json_txt['list']['list__item'] = []
-        # json_txt['list']['list__item']['list__title'] = 'The world this week'
-        # print(json_txt)
+    # artical_url = 'https://www.economist.com/news/china/21737447-countrys-politics-have-taken-another-turn-worse-chinas-leader-xi-jinping-will-be'
+    # get_article_content(artical_url, '/Users/fred/PycharmProjects/economist')

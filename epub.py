@@ -111,8 +111,9 @@ class EpubBook:
         item.srcPath = srcPath
         item.destPath = destPath
         item.mimeType = mimetypes.guess_type(destPath)[0]
-        assert item.destPath not in self.imageItems
-        self.imageItems[destPath] = item
+        #assert item.destPath not in self.imageItems
+        if item.destPath not in self.imageItems:
+            self.imageItems[destPath] = item
         return item
     
     def addHtmlForImage(self, imageItem):

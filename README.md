@@ -6,6 +6,8 @@
 
 > 更新
 
+> 2018.10.29 修改bug，默认保存路径为当前运行路径
+
 > 2018.2.24 新增支持文章内部图片抓取
 
 > 2018.2.23 新增epub_gen.py 支持把生成的markdown印刷版转成epub电子书格式
@@ -56,7 +58,7 @@ pip freeze > requirements.txt
 
 ```python
 
-get_print_edition('2018-02-03')
+get_print_edition('2018-02-03',save_path)
 
 ```
 
@@ -98,8 +100,9 @@ get_tpoics_articles('https://www.economist.com/latest-updates')
 
 ### 二.使用epub_gen生成电子书
 ```python
-
-   makeEpub('2018-02-17')
+   # src_article_path 文章路径
+   # save_dest 保存电子书路径
+   makeEpub('2018-02-17',src_article_path,save_dest)
    
 ```
 电子书刊如下展示:

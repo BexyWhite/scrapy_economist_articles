@@ -8,9 +8,10 @@ import codecs
 from epub import *
 import json
 import hashlib
+from urllib import parse
 
-SRC_DIR = '/Users/fred/PycharmProjects/economist/' #读取目录
-DEST_DIR = '/Users/fred/PycharmProjects/economist/' #保存的目标目录
+SRC_DIR = '/Users/fredliu/Documents/PycharmProjects/economist/remark/' #读取目录
+DEST_DIR = '/Users/fredliu/Documents/PycharmProjects/economist/remark/' #保存的目标目录
 
 def MD5(in_string):
     if in_string == None:
@@ -31,26 +32,29 @@ def loadHtmlTempler(templer_name, **kwargs):
     return stream.render('xhtml', doctype='xhtml11', drop_xml_decl=False)
 
 
-def makeEpub(edition):
+def makeEpub(edition,src_article_path,save_dest):
     '''
 
     :param edition: 版本号
+    :param src_article_path 需要生成的文章的路径
+    :param save_dest 保存路径
     :return:
     '''
     book = EpubBook()
 
-    article_dir = "{}{}".format(SRC_DIR, edition)
+    article_dir = "{}{}".format(src_article_path, edition)
+    #print(article_dir)
     json_articale = {}
     with open('{}/{}'.format(article_dir, "economist.json"), 'rb') as file:
         text_json = file.read()
         json_articale = json.loads(text_json)
 
-    #print(json_articale['cover_img'])
-    #print(json_articale['edition'])
+    print(json_articale['main_title'])
+    # print(json_articale['edition'])
     # print(json_articale['list'])
 
 
-    book.setTitle('The Economist {}'.format(json_articale['edition']))
+    book.setTitle('{} {}'.format(json_articale['main_title'],json_articale['edition']))
     book.addCreator('Monkey D Luffy')
     book.addCreator('Guybrush Threepwood')
     book.addMeta('contributor', 'Smalltalk80', role='bkp')
@@ -106,15 +110,20 @@ def makeEpub(edition):
 
 
         for index_item,list_item in enumerate(list_items['list__item']):
-            #print(list_item['list__link'])
-            #print(list_item['articale_image'])
+            # print(list_item['list__link'])
+            # print(list_item['articale_image'])
 
             #拷贝文章图片,支持多图片
             if list_item['articale_image'] != []:
                 for image_item in list_item['articale_image']:
+
+                    # print("{}/{}/images/{}".format(article_dir, list_items['list__title'], image_item))
+                    # print("images/{}".format(image_item))
                     book.addImage(
                         "{}/{}/images/{}".format(article_dir, list_items['list__title'], image_item),
                         "images/{}".format(image_item))
+
+
 
 
             title = list_item['list__link']
@@ -141,12 +150,16 @@ def makeEpub(edition):
 
 
 
-    rootDir = r'{}The Economist {}'.format(DEST_DIR,json_articale['edition'])
+    rootDir = r'{}{}|{}'.format(save_dest,json_articale['main_title'],json_articale['edition'])
     book.createBook(rootDir)
     EpubBook.createArchive(rootDir, rootDir + '.epub')
+    # 拷贝封面
+    shutil.copyfile(src_article_path+json_articale['edition']+'/'+json_articale['cover_img'], save_dest+json_articale['edition']+'.'+json_articale['cover_img'].split('.')[1])
 
 
 if __name__ == '__main__':
+    cur_path = os.getcwd()
+    src_article_path = cur_path + '/printedition/Markdown/'  # 当前目录下
+    dest_path = cur_path + '/printedition/epub/'  # 当前目录下
+    makeEpub('2018-10-13',src_article_path,dest_path)
 
-    makeEpub('2018-02-24')
-    #makeEpub('2018-02-17')
