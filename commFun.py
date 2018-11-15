@@ -1,7 +1,12 @@
 # -*- coding: UTF-8 -*-
+
+import markdown
+import codecs
+
 '''
 公共函数
 '''
+
 
 def mkdir(path):
     '''
@@ -31,5 +36,13 @@ def mkdir(path):
         return True
     else:
         # 如果目录存在则不创建，并提示目录已存在
-        print(path + ' 目录已存在')
+        # print(path + ' 目录已存在')
         return False
+
+
+def markdownTohtml(in_file):
+    input_file = codecs.open(in_file, mode="r", encoding="utf-8")
+    text = input_file.read()
+    html = markdown.markdown(text)
+    print(html)
+    return html

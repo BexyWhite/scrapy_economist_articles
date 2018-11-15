@@ -1,10 +1,18 @@
 
 # ScrapyEconomist [![star this repo](http://github-svg-buttons.herokuapp.com/star.svg?user=fredliu168&repo=scrapy_economist_articles&style=flat&background=1081C1)](https://github.com/fredliu168/scrapy_economist_articles) [![fork this repo](http://github-svg-buttons.herokuapp.com/fork.svg?user=fredliu168&repo=scrapy_economist_articles&style=flat&background=1081C1)](https://github.com/fredliu168/scrapy_economist_articles/fork) ![python](https://img.shields.io/badge/python-3.6-ff69b4.svg)
 
-# 自动抓取经济学人文章和期刊
+# 自动抓取经济学人文章和期刊并保存成Markdown格式和epub格式电子书
 
 
 > 更新
+
+> 2018.11.14 
+
+1.支持设置下载图片清晰度
+
+2.网络错误自动重试下载
+
+> 2018.11.05 通过代理访问下载文章，scrapy.py 支持自动下载文章并存储为epub格式电子书
 
 > 2018.10.29 修改bug，默认保存路径为当前运行路径
 
@@ -26,6 +34,26 @@
 
 杂志主要关注政治和商业方面的新闻，但是每期也有一两篇针对科技和艺术的报导，以及一些书评。杂志中所有文章都不署名，而且往往带有鲜明的立场，但又处处用事实说话。主编们认为：写出了什么东西，比出自谁的手笔更重要。从2012年1月28日的那一期杂志开始《经济学人》杂志开辟了中国专栏，为有关中国的文章提供更多的版面。
 
+## 使用代理下载
+
+今天发现无法正常下载期刊，排查了半天，可能是被封了，只能通过代理访问，代码配置通过代理下载文章(2018-11-05)
+
+``` 
+pip install PySocks
+```
+
+``` 
+import socket
+import socks
+import requests
+
+socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 9050)
+socket.socket = socks.socksocket
+print(requests.get('https://www.economist.com').text)
+
+```
+
+
 
 ## 抓取期刊使用方法(scrapy_main.py):
 
@@ -37,17 +65,14 @@
 
 执行如下命令安装依赖：
 
-```python
+```
 pip install -r requirements.txt
 ``` 
 
 > 生成requirements.txt 
-```python
+```
 pip freeze > requirements.txt
 ```
-
-
-> 设置默认保存路径: SAVE_DIR = '/Users/fred/PycharmProjects/economist/'
 
 
 ### 一.获取期刊

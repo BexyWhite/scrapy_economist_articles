@@ -27,7 +27,12 @@ def get_article_content(article_url,save_dir):
     :return:
     '''
 
-    r = requests.get(article_url, headers=headers)
+    proxies = {
+        "http": None,
+        "https": None,
+    }
+
+    r = requests.get(article_url, headers=headers,timeout=None)
 
     #print(r.status_code)
 
@@ -234,13 +239,19 @@ def mkdir(path):
         return False
 
 if __name__ == '__main__':
+    import socket
+    import socks
 
-    artical_url ='https://www.economist.com/news/china/21737069-party-wants-people-rent-china-trying-new-ways-skimming-housing-market-froth'
-    get_article_content(artical_url,'/Users/fred/PycharmProjects/economist')
-    #pass
+    socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 1086)
+    socket.socket = socks.socksocket
+
+    artical_url ='https://www.economist.com/china/2018/11/03/think-of-china-as-a-giant-sub-prime-lender-in-latin-america'
+    get_article_content(artical_url,'/Users/fredliu/Documents')
+    # #pass
 
     #get_print_edition('2018-02-03')
     #get_tpoics_articles('https://www.economist.com/latest-updates')
+
 
 
 
